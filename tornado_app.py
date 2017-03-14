@@ -1,14 +1,19 @@
 # -*- coding: utf-8 -*-
 import tornado.ioloop
 import tornado.web
-import redis
+import tornadoredis
+from tornado import gen
 
 
 class MainHandler(tornado.web.RequestHandler):
+
+    @tornado.web.asynchronous
+    @gen.engine
     def get(self):
-        value = r.get('test-key')
-        res = bytes.decode(value)
-        self.write(res)
+        value = yield tornado.gen.Task(c.get, 'test-key')
+        # res = bytes.decode(value)
+        # self.write(value)
+        self.render("baidu.html", value=value)
 
 
 application = tornado.web.Application([
@@ -16,8 +21,9 @@ application = tornado.web.Application([
 ])
 
 if __name__ == "__main__":
-    r = redis.StrictRedis(host='localhost', port=6379, db=0)
-    r.set(
+    c = tornadoredis.Client()
+    c.connect()
+    c.set(
         'test-key',
         '''
         <html><head><script async="" src="https://ss1.bdstatic.com/5eN1bjq8AAUYm2zgoY3K/r/www/cache/static/protocol/https/plugins/every_cookie_mac_82990d4.js"></script>

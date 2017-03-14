@@ -1,12 +1,20 @@
 # -*- coding: utf-8 -*-
 from japronto import Application
 import redis
+from jinja2 import Template
 
+def hello_file_only(request):
+    value = r.get('test-key')
+    res = bytes.decode(value)
+    with open('baidu.html') as html_file:
+        return request.Response(text=html_file.read(), mime_type='text/html')
 
 def hello(request):
     value = r.get('test-key')
     res = bytes.decode(value)
-    return request.Response(text=res, mime_type='text/html')
+    template = Template(res)
+    return request.Response(text=template.render(res=res),
+                            mime_type='text/html')
 
 
 if __name__ == "__main__":
@@ -2630,4 +2638,5 @@ initPreload({
 
     app = Application()
     app.router.add_route('/', hello)
+    app.router.add_route('/file-only', hello_file_only)
     app.run(debug=True)
